@@ -1,3 +1,11 @@
 dist
 node_modules
 .awolf
+.env
+.env.local
+.DS_Store
+*.log
+.vscode
+.idea
+postgres_data
+/generated/prisma
