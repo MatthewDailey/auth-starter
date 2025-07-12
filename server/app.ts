@@ -5,15 +5,22 @@
 import express from 'express'
 import cors from 'cors'
 import { createServer as createViteServer } from 'vite'
+import dotenv from 'dotenv'
+import { authMiddleware } from './auth'
+import { prisma } from './prisma'
+
+dotenv.config()
 
 export async function createApp() {
   const app = express()
   const isDev = process.env.NODE_ENV !== 'production'
   console.log('isDev', isDev)
 
+  app.use(authMiddleware)
+  
   app.use('/api', cors({
     origin: '*',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }))
   app.use(express.json())
@@ -21,6 +28,44 @@ export async function createApp() {
   app.get('/api/ping', (req, res) => {
     console.log('Received ping.')
     return res.send('pong')
+  })
+
+  app.get('/api/auth/me', async (req: any, res) => {
+    if (!req.oidc.isAuthenticated()) {
+      return res.json({ authenticated: false })
+    }
+
+    const auth0User = req.oidc.user
+    
+    try {
+      let user = await prisma.user.findUnique({
+        where: { auth0Id: auth0User.sub }
+      })
+
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            auth0Id: auth0User.sub,
+            email: auth0User.email,
+            name: auth0User.name,
+            picture: auth0User.picture
+          }
+        })
+      }
+
+      return res.json({
+        authenticated: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          picture: user.picture
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching user:', error)
+      return res.status(500).json({ error: 'Internal server error' })
+    }
   })
 
   if (isDev) {
