@@ -20,6 +20,31 @@ model User {
   email         String   @unique
   name          String?
   picture       String?
+  organizationId String?
+  organization  Organization? @relation(fields: [organizationId], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Organization {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  users         User[]
+  oktaConfig    OktaConfig?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OktaConfig {
+  id               String   @id @default(uuid())
+  organizationId   String   @unique
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  domain           String
+  clientId         String
+  clientSecret     String
+  redirectUri      String
+  isActive         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

@@ -4,10 +4,13 @@
 
 import express from 'express'
 import cors from 'cors'
+import session from 'express-session'
 import { createServer as createViteServer } from 'vite'
 import dotenv from 'dotenv'
 import { authMiddleware } from './auth'
 import { prisma } from './prisma'
+import { oktaRouter } from './okta'
+import './types'
 
 dotenv.config()
 
@@ -15,6 +18,18 @@ export async function createApp() {
   const app = express()
   const isDev = process.env.NODE_ENV !== 'production'
   console.log('isDev', isDev)
+
+  // Add session middleware for Okta
+  app.use(session({
+    secret: process.env.AUTH0_SECRET || 'your-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: !isDev,
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }))
 
   app.use(authMiddleware)
   
@@ -25,12 +40,25 @@ export async function createApp() {
   }))
   app.use(express.json())
 
+  // Add Okta routes
+  app.use(oktaRouter)
+
   app.get('/api/ping', (req, res) => {
     console.log('Received ping.')
     return res.send('pong')
   })
 
   app.get('/api/auth/me', async (req: any, res) => {
+    // Check Okta session first
+    if (req.session?.user) {
+      return res.json({
+        authenticated: true,
+        user: req.session.user,
+        authProvider: 'okta'
+      })
+    }
+
+    // Check Auth0 authentication
     if (!req.oidc.isAuthenticated()) {
       return res.json({ authenticated: false })
     }

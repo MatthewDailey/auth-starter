@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { AdminPanel } from './components/AdminPanel'
+import { OrganizationLogin } from './components/OrganizationLogin'
 
 interface User {
   id: string
@@ -10,6 +12,7 @@ interface User {
 interface AuthState {
   authenticated: boolean
   user?: User
+  authProvider?: string
   loading: boolean
 }
 
@@ -18,6 +21,7 @@ function App() {
     authenticated: false,
     loading: true
   })
+  const [showAdmin, setShowAdmin] = useState(false)
 
   useEffect(() => {
     checkAuth()
@@ -30,6 +34,7 @@ function App() {
       setAuthState({
         authenticated: data.authenticated,
         user: data.user,
+        authProvider: data.authProvider,
         loading: false
       })
     } catch (error) {
@@ -60,22 +65,26 @@ function App() {
   }
 
   if (!authState.authenticated) {
+    return <OrganizationLogin />
+  }
+
+  if (showAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center">
-            Welcome to Web Starter
-          </h1>
-          <p className="text-lg text-gray-600 mb-8 text-center">
-            Please log in to continue
-          </p>
-          <button
-            onClick={handleLogin}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Log In with Auth0
-          </button>
+      <div>
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <h1 className="text-xl font-semibold">Web Starter</h1>
+              <button
+                onClick={() => setShowAdmin(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Back to Profile
+              </button>
+            </div>
+          </div>
         </div>
+        <AdminPanel />
       </div>
     )
   }
@@ -112,15 +121,29 @@ function App() {
                 <span className="font-semibold text-gray-700">User ID:</span>
                 <p className="text-gray-600 text-sm break-all">{authState.user?.id}</p>
               </div>
+              {authState.authProvider && (
+                <div>
+                  <span className="font-semibold text-gray-700">Auth Provider:</span>
+                  <p className="text-gray-600">{authState.authProvider}</p>
+                </div>
+              )}
             </div>
           </div>
           
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
-            Log Out
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowAdmin(true)}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+            >
+              Admin Panel
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              Log Out
+            </button>
+          </div>
         </div>
       </div>
     </div>
