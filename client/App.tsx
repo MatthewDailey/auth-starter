@@ -51,9 +51,9 @@ function App() {
 
   if (authState.loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <h2>Loading...</h2>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold text-gray-800">Loading...</h2>
         </div>
       </div>
     )
@@ -61,11 +61,18 @@ function App() {
 
   if (!authState.authenticated) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>Welcome to Web Starter</h1>
-          <p style={styles.subtitle}>Please log in to continue</p>
-          <button onClick={handleLogin} style={styles.button}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center">
+            Welcome to Web Starter
+          </h1>
+          <p className="text-lg text-gray-600 mb-8 text-center">
+            Please log in to continue
+          </p>
+          <button
+            onClick={handleLogin}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
             Log In with Auth0
           </button>
         </div>
@@ -74,91 +81,50 @@ function App() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Welcome, {authState.user?.name || authState.user?.email}!</h1>
-        {authState.user?.picture && (
-          <img 
-            src={authState.user.picture} 
-            alt="Profile" 
-            style={styles.avatar}
-          />
-        )}
-        <div style={styles.userInfo}>
-          <p><strong>Email:</strong> {authState.user?.email}</p>
-          {authState.user?.name && <p><strong>Name:</strong> {authState.user.name}</p>}
-          <p><strong>User ID:</strong> {authState.user?.id}</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+      <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
+        <div className="text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+            Welcome, {authState.user?.name || authState.user?.email}!
+          </h1>
+          
+          {authState.user?.picture && (
+            <img 
+              src={authState.user.picture} 
+              alt="Profile" 
+              className="w-24 h-24 rounded-full mx-auto mb-6 border-4 border-emerald-200"
+            />
+          )}
+          
+          <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
+            <div className="space-y-3">
+              <div>
+                <span className="font-semibold text-gray-700">Email:</span>
+                <p className="text-gray-600">{authState.user?.email}</p>
+              </div>
+              {authState.user?.name && (
+                <div>
+                  <span className="font-semibold text-gray-700">Name:</span>
+                  <p className="text-gray-600">{authState.user.name}</p>
+                </div>
+              )}
+              <div>
+                <span className="font-semibold text-gray-700">User ID:</span>
+                <p className="text-gray-600 text-sm break-all">{authState.user?.id}</p>
+              </div>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            Log Out
+          </button>
         </div>
-        <button onClick={handleLogout} style={styles.logoutButton}>
-          Log Out
-        </button>
       </div>
     </div>
   )
-}
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-  },
-  card: {
-    backgroundColor: 'white',
-    padding: '40px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-    maxWidth: '400px',
-    width: '100%'
-  },
-  title: {
-    fontSize: '28px',
-    marginBottom: '20px',
-    color: '#333'
-  },
-  subtitle: {
-    fontSize: '18px',
-    color: '#666',
-    marginBottom: '30px'
-  },
-  button: {
-    backgroundColor: '#635BFF',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    fontSize: '16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s'
-  },
-  logoutButton: {
-    backgroundColor: '#DC3545',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    fontSize: '16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    marginTop: '20px'
-  },
-  avatar: {
-    width: '100px',
-    height: '100px',
-    borderRadius: '50%',
-    marginBottom: '20px'
-  },
-  userInfo: {
-    textAlign: 'left',
-    backgroundColor: '#f8f9fa',
-    padding: '20px',
-    borderRadius: '6px',
-    marginTop: '20px'
-  }
 }
 
 export default App

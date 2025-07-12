@@ -9,6 +9,7 @@ This web starter app has been updated with Auth0 authentication and PostgreSQL d
 - User profile storage in database
 - Logged-in and logged-out page states
 - Docker Compose for local PostgreSQL development
+- Tailwind CSS for modern, responsive styling
 
 ## Prerequisites
 
