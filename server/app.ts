@@ -8,6 +8,9 @@ import { createServer as createViteServer } from 'vite'
 import dotenv from 'dotenv'
 import { authMiddleware } from './auth'
 import { prisma } from './prisma'
+import { configureSamlAuth, handleSamlLogin, handleSamlCallback } from './saml-auth'
+import organizationsRouter from './routes/organizations'
+import teamMembersRouter from './routes/team-members'
 
 dotenv.config()
 
@@ -16,11 +19,14 @@ export async function createApp() {
   const isDev = process.env.NODE_ENV !== 'production'
   console.log('isDev', isDev)
 
+  // Configure SAML authentication
+  configureSamlAuth(app)
+  
   app.use(authMiddleware)
   
   app.use('/api', cors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }))
   app.use(express.json())
@@ -31,6 +37,16 @@ export async function createApp() {
   })
 
   app.get('/api/auth/me', async (req: any, res) => {
+    // Check for SAML authentication first
+    if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+      return res.json({
+        authenticated: true,
+        user: req.user,
+        authType: 'saml'
+      })
+    }
+    
+    // Check for Auth0 authentication
     if (!req.oidc.isAuthenticated()) {
       return res.json({ authenticated: false })
     }
@@ -60,13 +76,24 @@ export async function createApp() {
           email: user.email,
           name: user.name,
           picture: user.picture
-        }
+        },
+        authType: 'auth0'
       })
     } catch (error) {
       console.error('Error fetching user:', error)
       return res.status(500).json({ error: 'Internal server error' })
     }
   })
+
+  // SAML routes
+  app.get('/api/saml/login/:organizationId', handleSamlLogin)
+  app.post('/api/saml/callback/:organizationId', handleSamlCallback)
+
+  // Organization routes
+  app.use('/api/organizations', organizationsRouter)
+  
+  // Team member routes
+  app.use('/api', teamMembersRouter)
 
   if (isDev) {
     const vite = await createViteServer({

@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom'
+import { Organizations } from './components/Organizations'
+import { OrganizationDetail } from './components/OrganizationDetail'
 
 interface User {
   id: string
@@ -11,6 +14,7 @@ interface AuthState {
   authenticated: boolean
   user?: User
   loading: boolean
+  authType?: 'auth0' | 'saml'
 }
 
 function App() {
@@ -30,7 +34,8 @@ function App() {
       setAuthState({
         authenticated: data.authenticated,
         user: data.user,
-        loading: false
+        loading: false,
+        authType: data.authType
       })
     } catch (error) {
       console.error('Error checking auth:', error)
@@ -81,49 +86,76 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
-      <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
-        <div className="text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
-            Welcome, {authState.user?.name || authState.user?.email}!
-          </h1>
-          
-          {authState.user?.picture && (
-            <img 
-              src={authState.user.picture} 
-              alt="Profile" 
-              className="w-24 h-24 rounded-full mx-auto mb-6 border-4 border-emerald-200"
-            />
-          )}
-          
-          <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-            <div className="space-y-3">
-              <div>
-                <span className="font-semibold text-gray-700">Email:</span>
-                <p className="text-gray-600">{authState.user?.email}</p>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <nav className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex items-center space-x-8">
+                <Link to="/" className="text-xl font-bold text-gray-900">
+                  Web Starter
+                </Link>
+                <Link
+                  to="/organizations"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Organizations
+                </Link>
               </div>
-              {authState.user?.name && (
-                <div>
-                  <span className="font-semibold text-gray-700">Name:</span>
-                  <p className="text-gray-600">{authState.user.name}</p>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  {authState.user?.picture && (
+                    <img
+                      src={authState.user.picture}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full"
+                    />
+                  )}
+                  <span className="text-sm text-gray-700">
+                    {authState.user?.name || authState.user?.email}
+                  </span>
+                  {authState.authType && (
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                      {authState.authType.toUpperCase()}
+                    </span>
+                  )}
                 </div>
-              )}
-              <div>
-                <span className="font-semibold text-gray-700">User ID:</span>
-                <p className="text-gray-600 text-sm break-all">{authState.user?.id}</p>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Log Out
+                </button>
               </div>
             </div>
           </div>
-          
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
-            Log Out
-          </button>
-        </div>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                  Welcome to Web Starter
+                </h1>
+                <p className="text-gray-600 mb-6">
+                  You're successfully authenticated! Navigate to Organizations to manage your teams.
+                </p>
+                <Link
+                  to="/organizations"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-block"
+                >
+                  View Organizations
+                </Link>
+              </div>
+            </div>
+          } />
+          <Route path="/organizations" element={<Organizations />} />
+          <Route path="/organizations/:organizationId" element={<OrganizationDetail />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   )
 }
 

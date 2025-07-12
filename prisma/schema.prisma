@@ -22,4 +22,45 @@ model User {
   picture       String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  
+  // Organization relationships
+  ownedOrganizations Organization[] @relation("OrganizationOwner")
+  teamMemberships    TeamMember[]
+}
+
+model Organization {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  ownerId       String
+  owner         User     @relation("OrganizationOwner", fields: [ownerId], references: [id])
+  
+  // SAML Configuration
+  samlEnabled   Boolean  @default(false)
+  samlEntryPoint String?
+  samlIssuer    String?
+  samlCert      String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  teamMembers   TeamMember[]
+}
+
+model TeamMember {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  role            TeamRole     @default(MEMBER)
+  joinedAt        DateTime     @default(now())
+  
+  @@unique([userId, organizationId])
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
 }

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals"],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "ESNext",
@@ -16,5 +16,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["server/**/*", "client/**/*", "types/**/*"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "node_modules"]
 }
