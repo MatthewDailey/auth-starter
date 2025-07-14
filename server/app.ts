@@ -18,12 +18,15 @@ export async function createApp() {
   console.log('isDev', isDev)
 
   app.use(sessionMiddleware)
-  
-  app.use('/api', cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }))
+
+  app.use(
+    '/api',
+    cors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  )
   app.use(express.json())
 
   app.get('/api/ping', (req, res) => {
@@ -38,7 +41,7 @@ export async function createApp() {
 
     try {
       let user = await prisma.user.findUnique({
-        where: { workosId: req.session.user.id }
+        where: { workosId: req.session.user.id },
       })
 
       if (!user) {
@@ -46,9 +49,11 @@ export async function createApp() {
           data: {
             workosId: req.session.user.id,
             email: req.session.user.email,
-            name: `${req.session.user.firstName || ''} ${req.session.user.lastName || ''}`.trim() || null,
-            picture: null
-          }
+            name:
+              `${req.session.user.firstName || ''} ${req.session.user.lastName || ''}`.trim() ||
+              null,
+            picture: null,
+          },
         })
       }
 
@@ -58,8 +63,8 @@ export async function createApp() {
           id: user.id,
           email: user.email,
           name: user.name,
-          picture: user.picture
-        }
+          picture: user.picture,
+        },
       })
     } catch (error) {
       console.error('Error fetching user:', error)
@@ -79,26 +84,36 @@ export async function createApp() {
 
   app.get('/api/auth/callback', async (req: AuthenticatedRequest, res) => {
     const { code } = req.query
-    
+
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ error: 'Missing authorization code' })
     }
 
     try {
       const user = await authenticateWithCode(code)
-      
+
       req.session.user = {
         id: user.id,
         email: user.email,
         firstName: user.firstName || undefined,
         lastName: user.lastName || undefined,
       }
-      
+
       res.redirect('/')
     } catch (error) {
       console.error('Error authenticating with code:', error)
       res.status(500).json({ error: 'Authentication failed' })
     }
+  })
+
+  app.get('/api/auth/logout', (req: AuthenticatedRequest, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err)
+        return res.status(500).json({ error: 'Logout failed' })
+      }
+      res.json({ success: true })
+    })
   })
 
   app.post('/api/auth/logout', (req: AuthenticatedRequest, res) => {
