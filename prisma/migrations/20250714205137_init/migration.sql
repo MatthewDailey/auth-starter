@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "auth0Id" TEXT NOT NULL,
+    "workosId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
     "picture" TEXT,
@@ -12,7 +12,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_auth0Id_key" ON "User"("auth0Id");
+CREATE UNIQUE INDEX "User_workosId_key" ON "User"("workosId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
