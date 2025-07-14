@@ -1,10 +1,10 @@
-# Web Starter with Auth0 and PostgreSQL
+# Web Starter with WorkOS and PostgreSQL
 
-This web starter app has been updated with Auth0 authentication and PostgreSQL database integration.
+This web starter app has been updated with WorkOS authentication and PostgreSQL database integration.
 
 ## Features
 
-- Auth0 authentication (login/logout)
+- WorkOS authentication (login/logout)
 - PostgreSQL database with Prisma ORM
 - User profile storage in database
 - Logged-in and logged-out page states
@@ -15,7 +15,7 @@ This web starter app has been updated with Auth0 authentication and PostgreSQL d
 
 - Node.js 18+
 - Docker and Docker Compose
-- Auth0 account (free tier works)
+- WorkOS account (free tier works)
 
 ## Setup Instructions
 
@@ -25,15 +25,13 @@ This web starter app has been updated with Auth0 authentication and PostgreSQL d
 npm install
 ```
 
-### 2. Configure Auth0
+### 2. Configure WorkOS
 
-1. Create an Auth0 account at https://auth0.com
-2. Create a new "Regular Web Application"
-3. Configure the application settings:
-   - Allowed Callback URLs: `http://localhost:3000/api/auth/callback`
-   - Allowed Logout URLs: `http://localhost:3000`
-   - Allowed Web Origins: `http://localhost:3000`
-4. Save your credentials from the Settings tab
+1. Create a WorkOS account at https://workos.com
+2. In the WorkOS dashboard, configure redirect URIs:
+   - For development: `http://localhost:3000/api/auth/callback`
+   - For production: `https://your-domain.com/api/auth/callback`
+3. Save your API Key and Client ID from the dashboard
 
 ### 3. Set Up Environment Variables
 
@@ -41,11 +39,11 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` and update with your Auth0 credentials:
-- `AUTH0_ISSUER_BASE_URL`: Your Auth0 domain (e.g., `https://your-tenant.auth0.com`)
-- `AUTH0_CLIENT_ID`: Your application's Client ID
-- `AUTH0_CLIENT_SECRET`: Your application's Client Secret
-- `AUTH0_SECRET`: Generate with `openssl rand -hex 32`
+Edit `.env` and update with your WorkOS credentials:
+- `WORKOS_API_KEY`: Your WorkOS API Key
+- `WORKOS_CLIENT_ID`: Your WorkOS Client ID
+- `WORKOS_REDIRECT_URI`: Your callback URL (e.g., `http://localhost:3000/api/auth/callback`)
+- `WORKOS_SESSION_SECRET`: Generate with `openssl rand -hex 32`
 
 ### 4. Start PostgreSQL Database
 
@@ -86,9 +84,9 @@ Visit http://localhost:3000 to see the app.
 
 ## Application Flow
 
-1. **Logged Out State**: Users see a welcome page with a "Log In with Auth0" button
-2. **Login**: Clicking login redirects to Auth0's universal login page
-3. **Callback**: After successful login, Auth0 redirects back to the app
+1. **Logged Out State**: Users see a welcome page with a "Log In with WorkOS" button
+2. **Login**: Clicking login redirects to WorkOS authentication
+3. **Callback**: After successful login, WorkOS redirects back to the app
 4. **User Creation**: On first login, a user record is created in PostgreSQL
 5. **Logged In State**: Users see their profile information and a logout button
 6. **Logout**: Clicking logout clears the session and redirects to the logged-out page
@@ -97,7 +95,7 @@ Visit http://localhost:3000 to see the app.
 
 The app creates a `User` table with:
 - `id`: UUID primary key
-- `auth0Id`: Unique Auth0 user ID
+- `workosId`: Unique WorkOS user ID
 - `email`: User's email address
 - `name`: User's display name (optional)
 - `picture`: Profile picture URL (optional)
@@ -107,15 +105,15 @@ The app creates a `User` table with:
 ## API Endpoints
 
 - `GET /api/ping` - Health check endpoint
-- `GET /api/auth/login` - Initiates Auth0 login flow
+- `GET /api/auth/login` - Initiates WorkOS login flow
 - `GET /api/auth/logout` - Logs out the user
-- `GET /api/auth/callback` - Auth0 callback endpoint
+- `GET /api/auth/callback` - WorkOS callback endpoint
 - `GET /api/auth/me` - Returns current user info or authentication status
 
 ## Production Deployment
 
 For production deployment:
-1. Update Auth0 application URLs to match your production domain
+1. Update WorkOS redirect URIs to match your production domain
 2. Set proper environment variables in your hosting platform
 3. Use a managed PostgreSQL database service
 4. Run `npm run build` and deploy the `dist` folder
@@ -123,5 +121,6 @@ For production deployment:
 ## Troubleshooting
 
 - **Database Connection Issues**: Ensure Docker is running and port 5432 is not in use
-- **Auth0 Errors**: Double-check your Auth0 configuration and environment variables
+- **WorkOS Errors**: Double-check your WorkOS configuration and environment variables
 - **Migration Errors**: Make sure the database container is fully started before running migrations
+- **Session Issues**: Ensure `WORKOS_SESSION_SECRET` is set and sessions are properly configured

@@ -6,7 +6,8 @@ import express from 'express'
 import cors from 'cors'
 import { createServer as createViteServer } from 'vite'
 import dotenv from 'dotenv'
-import { authMiddleware } from './auth'
+import { sessionMiddleware, getAuthorizationUrl, authenticateWithCode } from './auth'
+import type { AuthenticatedRequest } from './auth'
 import { prisma } from './prisma'
 
 dotenv.config()
@@ -16,7 +17,7 @@ export async function createApp() {
   const isDev = process.env.NODE_ENV !== 'production'
   console.log('isDev', isDev)
 
-  app.use(authMiddleware)
+  app.use(sessionMiddleware)
   
   app.use('/api', cors({
     origin: '*',
@@ -30,25 +31,23 @@ export async function createApp() {
     return res.send('pong')
   })
 
-  app.get('/api/auth/me', async (req: any, res) => {
-    if (!req.oidc.isAuthenticated()) {
+  app.get('/api/auth/me', async (req: AuthenticatedRequest, res) => {
+    if (!req.session.user) {
       return res.json({ authenticated: false })
     }
 
-    const auth0User = req.oidc.user
-    
     try {
       let user = await prisma.user.findUnique({
-        where: { auth0Id: auth0User.sub }
+        where: { workosId: req.session.user.id }
       })
 
       if (!user) {
         user = await prisma.user.create({
           data: {
-            auth0Id: auth0User.sub,
-            email: auth0User.email,
-            name: auth0User.name,
-            picture: auth0User.picture
+            workosId: req.session.user.id,
+            email: req.session.user.email,
+            name: `${req.session.user.firstName || ''} ${req.session.user.lastName || ''}`.trim() || null,
+            picture: null
           }
         })
       }
@@ -66,6 +65,50 @@ export async function createApp() {
       console.error('Error fetching user:', error)
       return res.status(500).json({ error: 'Internal server error' })
     }
+  })
+
+  app.get('/api/auth/login', async (req, res) => {
+    try {
+      const authorizationUrl = await getAuthorizationUrl()
+      res.redirect(authorizationUrl)
+    } catch (error) {
+      console.error('Error getting authorization URL:', error)
+      res.status(500).json({ error: 'Failed to initiate login' })
+    }
+  })
+
+  app.get('/api/auth/callback', async (req: AuthenticatedRequest, res) => {
+    const { code } = req.query
+    
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ error: 'Missing authorization code' })
+    }
+
+    try {
+      const user = await authenticateWithCode(code)
+      
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName || undefined,
+        lastName: user.lastName || undefined,
+      }
+      
+      res.redirect('/')
+    } catch (error) {
+      console.error('Error authenticating with code:', error)
+      res.status(500).json({ error: 'Authentication failed' })
+    }
+  })
+
+  app.post('/api/auth/logout', (req: AuthenticatedRequest, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err)
+        return res.status(500).json({ error: 'Logout failed' })
+      }
+      res.json({ success: true })
+    })
   })
 
   if (isDev) {

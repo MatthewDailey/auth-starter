@@ -45,8 +45,13 @@ function App() {
     window.location.href = '/api/auth/login'
   }
 
-  const handleLogout = () => {
-    window.location.href = '/api/auth/logout'
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
   }
 
   if (authState.loading) {
@@ -73,7 +78,7 @@ function App() {
             onClick={handleLogin}
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Log In with Auth0
+            Log In with WorkOS
           </button>
         </div>
       </div>
