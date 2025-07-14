@@ -106,23 +106,15 @@ export async function createApp() {
     }
   })
 
-  app.get('/api/auth/logout', (req: AuthenticatedRequest, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Error destroying session:', err)
-        return res.status(500).json({ error: 'Logout failed' })
-      }
-      res.json({ success: true })
-    })
-  })
-
   app.post('/api/auth/logout', (req: AuthenticatedRequest, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.error('Error destroying session:', err)
         return res.status(500).json({ error: 'Logout failed' })
       }
-      res.json({ success: true })
+      // Redirect to WorkOS logout URI
+      const workosLogoutUri = `https://api.workos.com/sso/logout?redirect_uri=${encodeURIComponent(process.env.WORKOS_LOGOUT_REDIRECT_URI || 'http://localhost:3000/')}`
+      res.json({ success: true, workosLogoutUri })
     })
   })
 
