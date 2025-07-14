@@ -56,9 +56,9 @@ function App() {
 
   if (authState.loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gray-800">Loading...</h2>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937' }}>Loading...</h2>
         </div>
       </div>
     )
@@ -66,17 +66,29 @@ function App() {
 
   if (!authState.authenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center">
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #eff6ff, #e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ backgroundColor: 'white', padding: '3rem', borderRadius: '0.75rem', boxShadow: '0 10px 15px rgba(0,0,0,0.1)', maxWidth: '28rem', width: '100%' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem', textAlign: 'center' }}>
             Welcome to Web Starter
           </h1>
-          <p className="text-lg text-gray-600 mb-8 text-center">
+          <p style={{ fontSize: '1.125rem', color: '#4b5563', marginBottom: '2rem', textAlign: 'center' }}>
             Please log in to continue
           </p>
           <button
             onClick={handleLogin}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#4f46e5', 
+              color: 'white', 
+              fontWeight: '600', 
+              padding: '0.75rem 1.5rem', 
+              borderRadius: '0.5rem', 
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
           >
             Log In with WorkOS
           </button>
@@ -86,10 +98,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
-      <div className="bg-white p-8 md:p-12 rounded-xl shadow-lg max-w-md w-full">
-        <div className="text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f0fdf4, #d1fae5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ backgroundColor: 'white', padding: '3rem', borderRadius: '0.75rem', boxShadow: '0 10px 15px rgba(0,0,0,0.1)', maxWidth: '28rem', width: '100%' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1.5rem' }}>
             Welcome, {authState.user?.name || authState.user?.email}!
           </h1>
           
@@ -97,32 +109,50 @@ function App() {
             <img 
               src={authState.user.picture} 
               alt="Profile" 
-              className="w-24 h-24 rounded-full mx-auto mb-6 border-4 border-emerald-200"
+              style={{ 
+                width: '6rem', 
+                height: '6rem', 
+                borderRadius: '50%', 
+                margin: '0 auto 1.5rem', 
+                border: '4px solid #a7f3d0' 
+              }}
             />
           )}
           
-          <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-            <div className="space-y-3">
+          <div style={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', padding: '1.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
-                <span className="font-semibold text-gray-700">Email:</span>
-                <p className="text-gray-600">{authState.user?.email}</p>
+                <span style={{ fontWeight: '600', color: '#374151' }}>Email:</span>
+                <p style={{ color: '#4b5563', margin: '0.25rem 0 0' }}>{authState.user?.email}</p>
               </div>
               {authState.user?.name && (
                 <div>
-                  <span className="font-semibold text-gray-700">Name:</span>
-                  <p className="text-gray-600">{authState.user.name}</p>
+                  <span style={{ fontWeight: '600', color: '#374151' }}>Name:</span>
+                  <p style={{ color: '#4b5563', margin: '0.25rem 0 0' }}>{authState.user.name}</p>
                 </div>
               )}
               <div>
-                <span className="font-semibold text-gray-700">User ID:</span>
-                <p className="text-gray-600 text-sm break-all">{authState.user?.id}</p>
+                <span style={{ fontWeight: '600', color: '#374151' }}>User ID:</span>
+                <p style={{ color: '#4b5563', fontSize: '0.875rem', wordBreak: 'break-all', margin: '0.25rem 0 0' }}>{authState.user?.id}</p>
               </div>
             </div>
           </div>
           
           <button
             onClick={handleLogout}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#dc2626', 
+              color: 'white', 
+              fontWeight: '600', 
+              padding: '0.75rem 1.5rem', 
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
           >
             Log Out
           </button>
