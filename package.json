@@ -14,7 +14,8 @@
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "debug:workos": "tsx debug-workos.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
